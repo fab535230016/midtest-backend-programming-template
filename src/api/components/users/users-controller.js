@@ -14,11 +14,10 @@ async function getUsers(request, response, next) {
     
     const page_number = parseInt(request.query.page_number) //parseInt ditambahkan untuk memastikan ini adalah integer
     const page_size = parseInt(request.query.page_size)
-    const sort = request.query.sort
     const search = request.query.search
     
     //mengambil semua data users
-    const users = await usersService.getUsers();
+    let users = await usersService.getUsers();
 
     //Pagination
     const startIndex = (page_number-1)*page_size // starting index from 0.
@@ -42,14 +41,33 @@ async function getUsers(request, response, next) {
 
     //count dibuat untuk mengetahui total data yang ada.
     const count =
-      paginatedUsers.count = 31
+      paginatedUsers.count = users.length
     //totalPages dibuat untuk mengetahui berapa banyak halaman semua data.
     const totalPages =
-      paginatedUsers.totalPages = users.length/page_size
+      paginatedUsers.totalPages = Math.ceil(users.length/page_size) //Math.ceil biar hasil pembagian tidak coma
+    
+    //ini utk sorting
+    //SORT ASC DAN DESC
+    const sort = request.query.sort
+    if(sort){
+      if(sort === 'email_desc'){
+        users.sort((a,b) => b.email.localeCompare(a.email,undefined,{numeric:true}));
+      }else if(sort === 'name_desc'){
+        users.sort((a,b) => b.name.localeCompare(a.name,undefined,{numeric:true}));
+      }else{ //DEFAULT SORT ASC
+        users.sort((a,b) => a.email.localeCompare(b.email,undefined,{numeric:true}));
+      }
+    } 
+  
     paginatedUsers.paginatedUsers= users.slice(startIndex,endIndex)//agar response berada di atas paginatedUsers seperti di contoh soal jadi tarok di akhir.
 
-    //ini utk sorting
 
+    const results = paginatedUsers.paginatedUsers.map(user => ({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+  
+    }));
     //ini utk search
     return response.status(200).json(paginatedUsers);
   } catch (error) {

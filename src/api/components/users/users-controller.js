@@ -14,10 +14,19 @@ async function getUsers(request, response, next) {
     
     const page_number = parseInt(request.query.page_number) //parseInt ditambahkan untuk memastikan ini adalah integer
     const page_size = parseInt(request.query.page_size)
+    const sort = request.query.sort
     const search = request.query.search
     
     //mengambil semua data users
     let users = await usersService.getUsers();
+
+    
+    //ini utk search
+    if(search){
+      const[x,y]= search.split(':');
+      const reg = new RegExp(y);
+      users = users.filter(user => user&& user[x] && user[x].match(reg));
+    }
 
     //Pagination
     const startIndex = (page_number-1)*page_size // starting index from 0.
@@ -48,7 +57,6 @@ async function getUsers(request, response, next) {
     
     //ini utk sorting
     //SORT ASC DAN DESC
-    const sort = request.query.sort
     if(sort){
       if(sort === 'email_desc'){
         users.sort((a,b) => b.email.localeCompare(a.email,undefined,{numeric:true}));
@@ -58,7 +66,6 @@ async function getUsers(request, response, next) {
         users.sort((a,b) => a.email.localeCompare(b.email,undefined,{numeric:true}));
       }
     } 
-  
     paginatedUsers.paginatedUsers= users.slice(startIndex,endIndex)//agar response berada di atas paginatedUsers seperti di contoh soal jadi tarok di akhir.
 
 
@@ -68,7 +75,6 @@ async function getUsers(request, response, next) {
         email: user.email,
   
     }));
-    //ini utk search
     return response.status(200).json(paginatedUsers);
   } catch (error) {
     return next(error);

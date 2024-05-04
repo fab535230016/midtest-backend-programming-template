@@ -10,8 +10,48 @@ const { errorResponder, errorTypes } = require('../../../core/errors');
  */
 async function getUsers(request, response, next) {
   try {
+    //pada function getUsers saya ketik beberapa code tambahan agar pagination,sort,search bisa dilakukan.(535230016 fablius maxleon)
+    
+    const page_number = parseInt(request.query.page_number) //parseInt ditambahkan untuk memastikan ini adalah integer
+    const page_size = parseInt(request.query.page_size)
+    const sort = request.query.sort
+    const search = request.query.search
+    
+    //mengambil semua data users
     const users = await usersService.getUsers();
-    return response.status(200).json(users);
+
+    //Pagination
+    const startIndex = (page_number-1)*page_size // starting index from 0.
+    const endIndex = page_number * page_size
+    const paginatedUsers = {}
+    paginatedUsers.page_number = page_number
+    paginatedUsers.page_size = page_size
+    
+    //melakukan check apakah ada tidaknya next ataupun previous page.
+    if (endIndex < users.length){
+      paginatedUsers.has_next_page = true ;
+    }else{
+        paginatedUsers.has_next_page = false;
+
+      }
+    if (startIndex > 0){
+      paginatedUsers.has_previous_page = true;
+    }else{
+      paginatedUsers.has_previous_page = false;
+    }
+
+    //count dibuat untuk mengetahui total data yang ada.
+    const count =
+      paginatedUsers.count = 31
+    //totalPages dibuat untuk mengetahui berapa banyak halaman semua data.
+    const totalPages =
+      paginatedUsers.totalPages = users.length/page_size
+    paginatedUsers.paginatedUsers= users.slice(startIndex,endIndex)//agar response berada di atas paginatedUsers seperti di contoh soal jadi tarok di akhir.
+
+    //ini utk sorting
+
+    //ini utk search
+    return response.status(200).json(paginatedUsers);
   } catch (error) {
     return next(error);
   }

@@ -6,7 +6,7 @@ const { hashPassword, passwordMatched } = require('../../../utils/password');
  * @returns {Array}
  */
 async function getUsers() {
-  const users = await usersRepository.getUsers(); //error jadi saya ganti dari const ke
+  let users = await usersRepository.getUsers(); //error jadi saya ganti dari const ke let
   const results = [];
   
   for (let i = 0; i < users.length; i += 1) {

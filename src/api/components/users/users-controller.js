@@ -59,10 +59,10 @@ async function getUsers(request, response, next) {
     //SORT ASC DAN DESC
     if(sort){
       if(sort === 'email_desc'){
-        users.sort((a,b) => b.email.localeCompare(a.email,undefined,{numeric:true}));
+        users.sort((a,b) => b.email.localeCompare(a.email,undefined,{numeric:true})); // gunakan locale compare dan numeric:true, biar descendingnya berurut
       }else if(sort === 'name_desc'){
         users.sort((a,b) => b.name.localeCompare(a.name,undefined,{numeric:true}));
-      }else{ //DEFAULT SORT ASC
+      }else{ //DEFAULT SORT ASC (JIKA TIDAK REQUEST QUERY)
         users.sort((a,b) => a.email.localeCompare(b.email,undefined,{numeric:true}));
       }
     } 

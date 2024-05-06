@@ -17,6 +17,7 @@ async function getBanks(request, response, next) {
   }
 }
 
+
 /**
  * Handle get bank detail request
  * @param {object} request - Express request object

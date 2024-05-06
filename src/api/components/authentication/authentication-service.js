@@ -17,10 +17,11 @@ async function checkLoginCredentials(email, password) {
     const waktuPercobaan = new Date().getTime();
   if(waktuPercobaan - error[email].timestamp < timeout){
     const sisaTimeout = Math.ceil(timeout / 60000) //60000 milisecond 
+    //Jika masi terus mencoba setelah 5 percobaan, maka akan 
     throw new Error(`Sudah mencoba terlalu banyak (5 kali). Please try again in ${sisaTimeout} minutes.`);
   }else{
     delete error[email]; //saya tidak tau cara apa yang bisa digunakan untuk mereset waktu jadi saya pakai delete aja
-  }
+  } // dengan menggunakan delete, maka waktu akan ngulang dari awal
                                                      }
   const user = await authenticationRepository.getUserByEmail(email);
   // We define default user password here as '<RANDOM_PASSWORD_FILTER>'

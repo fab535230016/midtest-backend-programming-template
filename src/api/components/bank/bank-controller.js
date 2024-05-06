@@ -10,72 +10,8 @@ const { errorResponder, errorTypes } = require('../../../core/errors');
  */
 async function getBanks(request, response, next) {
   try {
-    //pada function getBanks saya ketik beberapa code tambahan agar pagination,sort,search bisa dilakukan.(535230016 fablius maxleon)
-    
-    const page_number = parseInt(request.query.page_number) //parseInt ditambahkan untuk memastikan ini adalah integer
-    const page_size = parseInt(request.query.page_size)
-    const sort = request.query.sort
-    const search = request.query.search
-    
-    //mengambil semua data banks
-    let banks = await banksService.getBanks(page_number, page_size);
-
-    
-    //ini utk search
-    if(search){
-      const[x,y]= search.split(':');
-      const reg = new RegExp(y);
-      banks = banks.filter(bank => bank&& bank[x] && bank[x].match(reg));
-    }
-
-    //Pagination
-    const startIndex = (page_number-1)*page_size // starting index from 0.
-    const endIndex = page_number * page_size
-    const paginatedBanks = {}
-    paginatedBanks.page_number = page_number
-    paginatedBanks.page_size = page_size
-    
-    //melakukan check apakah ada tidaknya next ataupun previous page.
-    if (endIndex < banks.length){
-      paginatedBanks.has_next_page = true ;
-    }else{
-        paginatedBanks.has_next_page = false;
-
-      }
-    if (startIndex > 0){
-      paginatedBanks.has_previous_page = true;
-    }else{
-      paginatedBanks.has_previous_page = false;
-    }
-
-    //count dibuat untuk mengetahui total data yang ada.
-    const count =
-      paginatedBanks.count = banks.length
-    //totalPages dibuat untuk mengetahui berapa banyak halaman semua data.
-    const totalPages =
-      paginatedBanks.totalPages = Math.ceil(banks.length/page_size) //Math.ceil biar hasil pembagian tidak coma
-    
-    //ini utk sorting
-    //SORT ASC DAN DESC
-    if(sort){
-      if(sort === 'email_desc'){
-        banks.sort((a,b) => b.email.localeCompare(a.email,undefined,{numeric:true})); // gunakan locale compare dan numeric:true, biar descendingnya berurut
-      }else if(sort === 'name_desc'){
-        banks.sort((a,b) => b.name.localeCompare(a.name,undefined,{numeric:true}));
-      }else{ //DEFAULT SORT ASC (JIKA TIDAK REQUEST QUERY)
-        banks.sort((a,b) => a.email.localeCompare(b.email,undefined,{numeric:true}));
-      }
-    } 
-    paginatedBanks.paginatedBanks= banks.slice(startIndex,endIndex)//agar response berada di atas paginatedBanks seperti di contoh soal jadi tarok di akhir.
-
-
-    const results = paginatedBanks.paginatedBanks.map(bank => ({
-        id: bank.id,
-        name: bank.name,
-        email: bank.email,
-  
-    }));
-    return response.status(200).json(paginatedBanks);
+    const banks = await banksService.getBanks();
+    return response.status(200).json(banks);
   } catch (error) {
     return next(error);
   }
